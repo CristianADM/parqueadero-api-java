@@ -26,6 +26,22 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
+    public List<UserResponse> findAllUsers() {
+
+        List<UserEntity> users = (List<UserEntity>) this.userRepository.findAll();
+
+        List<UserResponse> userResponses = new ArrayList<>();
+        users.forEach(usr -> {
+            userResponses.add(UserResponse.builder().id(usr.getId())
+                                .email(usr.getEmail())
+                                .isActive(usr.getAudit().isActive())
+                                .build());
+        });
+
+        return userResponses;
+    }
+
+    @Override
     public UserResponse createUser(UserRequest userRequest) {
 
         List<RoleEntity> roles = new ArrayList<>();

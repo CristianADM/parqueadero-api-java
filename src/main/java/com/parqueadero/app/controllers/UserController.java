@@ -11,12 +11,8 @@ import com.parqueadero.app.dtos.responses.UserResponse;
 import com.parqueadero.app.services.IUserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
-
-
+import org.springframework.web.bind.annotation.PutMapping;
 
 @RequestMapping("/users")
 @RestController
@@ -29,8 +25,8 @@ public class UserController {
     }
 
     @GetMapping()
-    public String getMethodName() {
-        return "Esto es un simple string";
+    public ResponseEntity<?> getAllUsers() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.userService.findAllUsers()); 
     }
     
     @PostMapping()
@@ -38,9 +34,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.createUser(userRequest));
     }
     
-    @PutMapping
-    public ResponseEntity<?> updateUser(Long idUser, @RequestBody UserRequest userRequest) {
+    @PutMapping("/{idUser}")
+    public ResponseEntity<?> updateUser(@PathVariable Long idUser, @RequestBody UserRequest userRequest) {
         UserResponse userResponse = this.userService.updateUser(idUser, userRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(userRequest);
+        return ResponseEntity.status(HttpStatus.OK).body(userResponse);
     }
 }
