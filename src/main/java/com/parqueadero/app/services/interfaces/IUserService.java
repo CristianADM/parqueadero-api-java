@@ -1,4 +1,4 @@
-package com.parqueadero.app.services;
+package com.parqueadero.app.services.interfaces;
 
 import java.util.List;
 

@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Pattern;
 @Setter
 public class UserRequest {
 
-    @NotBlank
+    @NotBlank()
     @Size(min = 6, max = 50)
     @Pattern(regexp = "^[\\w.-]+@[a-zA-Z\\d-]+\\.[a-zA-Z]{2,}$")
     private String email;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.dtos.requests.UserRequest;
@@ -12,6 +13,8 @@ import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.RoleEntity;
 import com.parqueadero.app.models.UserEntity;
 import com.parqueadero.app.repositories.UserRepository;
+import com.parqueadero.app.services.interfaces.IRoleService;
+import com.parqueadero.app.services.interfaces.IUserService;
 
 @Service
 public class UserServiceImpl implements IUserService {
@@ -19,10 +22,15 @@ public class UserServiceImpl implements IUserService {
     private UserRepository userRepository;
 
     private IRoleService roleService;
+    
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, IRoleService roleService) {
+    public UserServiceImpl(UserRepository userRepository,
+                        IRoleService roleService,
+                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -52,7 +60,7 @@ public class UserServiceImpl implements IUserService {
         
         UserEntity user = UserEntity.builder()
             .email(userRequest.getEmail())
-            .password(userRequest.getPassword())
+            .password(passwordEncoder.encode(userRequest.getPassword()))
             .roles(roles)
             .audit(new Audit())
             .build();
@@ -84,7 +92,7 @@ public class UserServiceImpl implements IUserService {
         
         UserEntity user = userEntity.get();
         user.setEmail(userRequest.getEmail());
-        user.setPassword(userRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setRoles(roles);
 
         user = this.userRepository.save(user);

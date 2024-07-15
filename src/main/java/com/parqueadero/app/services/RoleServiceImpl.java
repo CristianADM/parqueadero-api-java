@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.models.RoleEntity;
 import com.parqueadero.app.repositories.RoleRepositoy;
+import com.parqueadero.app.services.interfaces.IRoleService;
 
 @Service
 public class RoleServiceImpl implements IRoleService {
