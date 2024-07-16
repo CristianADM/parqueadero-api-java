@@ -33,4 +33,5 @@ build/
 .vscode/
 
 ### Archivos Logs ###
-*.log
+#*.log
+#*.gz
