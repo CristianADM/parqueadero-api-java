@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,5 +23,8 @@ public class UserRequest {
     @Size(min = 8, max = 50)
     private String password;
 
-    private List<@Valid RoleRequest> roles;
+    @NotNull
+    @Size(min = 1, message = "The list must contain at least one role")
+    @Valid
+    private List<RoleRequest> roles;
 }

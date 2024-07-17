@@ -1,28 +1,51 @@
 package com.parqueadero.app.controllers;
 
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.parqueadero.app.dtos.responses.ErrorDetailResponse;
+import com.parqueadero.app.dtos.responses.ErrorResponse;
+import com.parqueadero.app.exceptions.BadRequestException;
+import com.parqueadero.app.exceptions.NotFoundException;
+
 @RestControllerAdvice
 public class HandlerExceptionController {
 
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException e) {
+        return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException e) {
+        return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<Map<String, String>> handleValidationException(MethodArgumentNotValidException e) {
-        Map<String, String> errors = e.getBindingResult().getFieldErrors().stream()
-            .collect(Collectors.toMap(
-                err -> err.getField(), 
-                err -> err.getDefaultMessage(),
-                (existing, replacement) -> existing));
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+        
+        List<ErrorDetailResponse> errors = new ArrayList<>();
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        e.getBindingResult().getFieldErrors().forEach(er -> {
+            errors.add(ErrorDetailResponse.builder()
+                .error(er.getField())
+                .message(er.getDefaultMessage())
+                .build());
+        });
+
+        ErrorResponse error = new ErrorResponse();
+        error.setErrors(errors);
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 }

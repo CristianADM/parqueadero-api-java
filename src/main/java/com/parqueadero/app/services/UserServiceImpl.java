@@ -4,11 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.swing.text.html.Option;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.dtos.requests.UserRequest;
 import com.parqueadero.app.dtos.responses.UserResponse;
+import com.parqueadero.app.exceptions.BadRequestException;
+import com.parqueadero.app.exceptions.NotFoundException;
 import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.RoleEntity;
 import com.parqueadero.app.models.UserEntity;
@@ -52,10 +56,16 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserResponse createUser(UserRequest userRequest) {
 
+        Optional<UserEntity> userRegistered = this.findByEmail(userRequest.getEmail());
+
+        if(userRegistered.isPresent()) {
+            throw new BadRequestException("email", "the email is already registered");
+        }
+
         List<RoleEntity> roles = new ArrayList<>();
 
         userRequest.getRoles().forEach(role -> {
-            this.roleService.findRoleEntityByName(role.getName()).ifPresent(roles::add);
+            roles.add(this.roleService.findRoleEntityByName(role.getName()).orElseThrow(() -> new NotFoundException("role", "The role with that name was not found"))) ;
         });
         
         UserEntity user = UserEntity.builder()
@@ -102,5 +112,9 @@ public class UserServiceImpl implements IUserService {
                     .email(user.getEmail())
                     .isActive(user.getAudit().isActive())
                     .build();
+    }
+
+    private Optional<UserEntity> findByEmail(String email) {
+        return this.userRepository.findByEmail(email);
     }
 }
