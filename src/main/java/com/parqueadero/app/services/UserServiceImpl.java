@@ -8,6 +8,7 @@ import javax.swing.text.html.Option;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.UserRequest;
 import com.parqueadero.app.dtos.responses.UserResponse;
@@ -37,6 +38,7 @@ public class UserServiceImpl implements IUserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<UserResponse> findAllUsers() {
 
@@ -53,10 +55,11 @@ public class UserServiceImpl implements IUserService {
         return userResponses;
     }
 
+    @Transactional
     @Override
     public UserResponse createUser(UserRequest userRequest) {
 
-        Optional<UserEntity> userRegistered = this.findByEmail(userRequest.getEmail());
+        Optional<UserEntity> userRegistered = this.userRepository.findByEmail(userRequest.getEmail());
 
         if(userRegistered.isPresent()) {
             throw new BadRequestException("email", "the email is already registered");
@@ -84,37 +87,48 @@ public class UserServiceImpl implements IUserService {
                     .build();
     }
 
+    @Transactional
     @Override
     public UserResponse updateUser(Long idUser, UserRequest userRequest) {
 
-        Optional<UserEntity> userEntity = this.userRepository.findById(idUser);
-
-        if(!userEntity.isPresent()) {
-            return null;
-        }
+        UserEntity userEntity = this.findUserById(idUser);
 
         //Validar que no exista otro usuario por el correo que viene de la peticion
+        Optional<UserEntity> userRegistered = this.userRepository.findByEmail(userRequest.getEmail());
+
+        if(userRegistered.isPresent()) {
+            throw new BadRequestException("email", "the email is already registered");
+        }
         
         List<RoleEntity> roles = new ArrayList<>();
         userRequest.getRoles().forEach(role -> {
             this.roleService.findRoleEntityByName(role.getName()).ifPresent(roles::add);
         });
         
-        UserEntity user = userEntity.get();
-        user.setEmail(userRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
-        user.setRoles(roles);
+        userEntity.setEmail(userRequest.getEmail());
+        userEntity.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+        userEntity.setRoles(roles);
 
-        user = this.userRepository.save(user);
+        userEntity = this.userRepository.save(userEntity);
 
         return UserResponse.builder()
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .isActive(user.getAudit().isActive())
+                    .id(userEntity.getId())
+                    .email(userEntity.getEmail())
+                    .isActive(userEntity.getAudit().isActive())
                     .build();
     }
 
-    private Optional<UserEntity> findByEmail(String email) {
-        return this.userRepository.findByEmail(email);
+    @Transactional(readOnly = true)
+    @Override
+    public UserEntity findUserById(Long id) {
+        return this.checkOptionalEmpty(this.userRepository.findById(id));
+    }
+
+    @Override
+    public UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional) {
+        if(userOptional.isEmpty()) {
+            throw new BadRequestException("Id", "There is no user with that id");
+        }
+        return userOptional.get();
     }
 }

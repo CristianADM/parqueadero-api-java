@@ -15,4 +15,7 @@ public interface IUserService {
 
     UserResponse updateUser(Long idUser, UserRequest userRequest);
 
+    UserEntity findUserById(Long id);
+
+    UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional);
 }

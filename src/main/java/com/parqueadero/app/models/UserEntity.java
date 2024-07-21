@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -46,11 +47,15 @@ public class UserEntity {
             uniqueConstraints = {@UniqueConstraint(columnNames = {"id_user", "id_role"})})
     private List<RoleEntity> roles;
 
+    @OneToMany(mappedBy = "user")
+    private List<ParkingLotEntity> parkingLots;
+
     @Embedded
     private Audit audit;
 
     public UserEntity() {
         this.roles = new ArrayList<>();
+        this.parkingLots = new ArrayList<>();
         this.audit = new Audit();
     }
  }
