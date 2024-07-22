@@ -28,6 +28,9 @@ public class ParkingLotEntity {
     @Column(name = "id_parking")
     private Long id;
 
+    @Column(nullable = false, unique = true, length = 100)
+    private String name;
+
     @Column(name = "price_per_hour", nullable = false)
     private Long pricePerHour;
 
