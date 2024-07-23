@@ -16,6 +16,8 @@ public interface IUserService {
     UserResponse updateUser(Long idUser, UserRequest userRequest);
 
     UserEntity findUserById(Long id);
+    
+    UserEntity findUserByEmail(String email);
 
     UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional);
 }

@@ -7,8 +7,9 @@ import com.parqueadero.app.dtos.requests.ParkingLotRequest;
 import com.parqueadero.app.dtos.responses.ParkingLotResponse;
 import com.parqueadero.app.services.interfaces.IParkingLotService;
 
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -33,7 +34,7 @@ public class ParkingLotController {
     }
     
     @PostMapping
-    public ResponseEntity<ParkingLotResponse> createParkingLot(@RequestBody ParkingLotRequest parkingLot) {
+    public ResponseEntity<ParkingLotResponse> createParkingLot(@Valid @RequestBody ParkingLotRequest parkingLot) {
         return ResponseEntity.status(HttpStatus.CREATED).body(parkingLotService.createParkingLot(parkingLot));
     }
 }
