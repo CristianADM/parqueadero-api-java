@@ -121,6 +121,12 @@ public class UserServiceImpl implements IUserService {
     public UserEntity findUserById(Long id) {
         return this.checkOptionalEmpty(this.userRepository.findById(id));
     }
+    
+    @Transactional(readOnly = true)
+    @Override
+    public UserEntity findUserByEmail(String email) {
+        return this.checkOptionalEmpty(this.userRepository.findByEmail(email));
+    }
 
     @Override
     public UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional) {
