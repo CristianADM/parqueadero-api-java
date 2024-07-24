@@ -18,6 +18,7 @@ public class ParkingLotServiceImpl implements IParkingLotService {
 
     @Override
     public ParkingLotResponse createParkingLot(ParkingLotRequest parkingLotRequest) {
+        return ParkingLotResponse.builder().build();
     }
 
     @Override
