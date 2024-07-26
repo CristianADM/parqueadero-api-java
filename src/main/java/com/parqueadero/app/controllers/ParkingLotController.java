@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
+import java.util.List;
 
 @RequestMapping("/parking-lot")
 @RestController
@@ -28,13 +28,13 @@ public class ParkingLotController {
         this.parkingLotService = parkingLotService;
     }
 
-    @GetMapping("path")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
+    @GetMapping
+    public ResponseEntity<List<ParkingLotResponse>> getMethodName() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkingLotService.findAllParkingLots());
     }
     
     @PostMapping
     public ResponseEntity<ParkingLotResponse> createParkingLot(@Valid @RequestBody ParkingLotRequest parkingLot) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(parkingLotService.createParkingLot(parkingLot));
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.parkingLotService.createParkingLot(parkingLot));
     }
 }

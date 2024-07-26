@@ -1,6 +1,10 @@
 package com.parqueadero.app.services;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.ParkingLotRequest;
 import com.parqueadero.app.dtos.responses.ParkingLotResponse;
@@ -23,6 +27,29 @@ public class ParkingLotServiceImpl implements IParkingLotService {
     private final IUserService userService;
 
     @Override
+    public List<ParkingLotResponse> findAllParkingLots() {
+        List<ParkingLotEntity> parkingLots = this.parkingLotRepository.findAll();
+
+        List<ParkingLotResponse> parkingLotResponses = new ArrayList<>();
+
+        parkingLots.forEach(parking -> {
+            parkingLotResponses.add(ParkingLotResponse.builder()
+                                    .name(parking.getName())
+                                    .pricePerHour(parking.getPricePerHour())
+                                    .capacity(parking.getCapacity())
+                                    .user(UserResponse.builder()
+                                            .email(parking.getUser().getEmail())
+                                            .id(parking.getUser().getId())
+                                            .isActive(parking.getUser().getAudit().isActive())
+                                            .build())
+                                    .build());
+        });
+
+        return parkingLotResponses;
+    }
+
+    @Transactional()
+    @Override
     public ParkingLotResponse createParkingLot(ParkingLotRequest parkingLotRequest) {
         this.validUpdateNameParkingLot(parkingLotRequest.getName());
 
@@ -44,9 +71,8 @@ public class ParkingLotServiceImpl implements IParkingLotService {
             .pricePerHour(parkingLotEntity.getPricePerHour())
             .capacity(parkingLotEntity.getCapacity())
             .user(UserResponse.builder()
-                    
-                    .email(parkingLotEntity.getUser().getEmail()))
-                    .build()
+                    .email(parkingLotEntity.getUser().getEmail())
+                    .build())
             .build();
     }
 
