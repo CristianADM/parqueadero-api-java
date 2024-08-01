@@ -1,10 +1,10 @@
 package com.parqueadero.app.dtos.responses;
 
-import lombok.Builder;
+import com.parqueadero.app.models.ParkingLotEntity;
+
 import lombok.Data;
 
 @Data
-@Builder
 public class ParkingLotResponse {
     
     private Long id;
@@ -16,4 +16,12 @@ public class ParkingLotResponse {
     private Long capacity;
 
     private UserResponse user;
+
+    public ParkingLotResponse(ParkingLotEntity parkingLotEntity) {
+        this.id = parkingLotEntity.getId();
+        this.name = parkingLotEntity.getName();
+        this.pricePerHour = parkingLotEntity.getPricePerHour();
+        this.capacity = parkingLotEntity.getCapacity();
+        this.user = new UserResponse(parkingLotEntity.getUser());
+    }
 }
