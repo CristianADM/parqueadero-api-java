@@ -64,6 +64,8 @@ public class ParkingLotServiceImpl implements IParkingLotService {
     @Override
     public ParkingLotResponse updateParkingLot(Long idParkingLot, ParkingLotRequest parkingLotRequest) {
         ParkingLotEntity parkingLotEntity = this.findParkingLotById(idParkingLot);
+        
+        this.validUpdateNameParkingLot(parkingLotRequest.getName());
 
         UserEntity userEntity = this.userService.findUserByEmail(parkingLotRequest.getEmailUser());
 
