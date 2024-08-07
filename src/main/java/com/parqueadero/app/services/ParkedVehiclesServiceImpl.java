@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
+import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.ParkedVehiclesEntity;
 import com.parqueadero.app.models.ParkingLotEntity;
@@ -25,13 +26,27 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
     public ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest) {
         ParkingLotEntity parkingLotEntity = this.parkingLotService.findParkingLotById(parkedVehicleRequest.getIdParkingLot());
 
+        this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate());
+
         ParkedVehiclesEntity parkedVehiclesEntity = ParkedVehiclesEntity.builder()
                                                         .parkingLotEntity(parkingLotEntity)
-                                                        .carPlate(parkedVehicleRequest.getCarPlate())
+                                                        .carPlate(parkedVehicleRequest.getCarPlate().toUpperCase())
                                                         .audit(new Audit())
                                                         .build();
 
         parkedVehiclesEntity = this.parkedVehiclesRepository.save(parkedVehiclesEntity);
         return new ParkedVehicleResponse(parkedVehiclesEntity);
+    }
+
+    @Override
+    public void validIfExisteVehicleByCarPlate(String carPlate) {
+        this.parkedVehiclesRepository.findByCarPlate(carPlate.toUpperCase()).ifPresent(
+            v -> {
+                throw new BadRequestException("carPlate", "There is a vehicle registered with that car plate.");
+            }
+        );
+
+        
+        
     }
 }

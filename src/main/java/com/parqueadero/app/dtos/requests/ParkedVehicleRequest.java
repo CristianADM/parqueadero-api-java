@@ -20,6 +20,4 @@ public class ParkedVehicleRequest {
     @NotBlank
     @Pattern(regexp = "^[a-zA-Z0-9]{6}$", message = "The carPlate must have 6 characters and be alphanumeric.")
     private String carPlate;
-
-    private LocalDateTime departureDate;
 }

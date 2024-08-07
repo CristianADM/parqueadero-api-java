@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import com.parqueadero.app.models.ParkedVehiclesEntity;
 
+import lombok.Data;
+
+@Data
 public class ParkedVehicleResponse {
 
     private Long id;

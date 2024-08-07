@@ -27,7 +27,7 @@ public class ParkedVehiclesController {
     //---- GET ----\\
 
     //---- POST ----\\
-    @PostMapping()
+    @PostMapping
     public ResponseEntity<ParkedVehicleResponse> registerVehicle(@Valid @RequestBody ParkedVehicleRequest parkedVehicleRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(this.parkedVehiclesService.registerVehicle(parkedVehicleRequest));
     }
