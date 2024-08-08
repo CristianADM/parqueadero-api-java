@@ -28,8 +28,28 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
 
         this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate());
 
-        if(parkingLotEntity.getCapacity() < this.countParkedVehiclesByParkingLotId(parkingLotEntity.getId())) {
-            //lanzar exception
+        if(parkingLotEntity.getCapacity() <= this.countParkedVehiclesByParkingLotId(parkingLotEntity.getId())) {
+            throw new BadRequestException("capcity", "There are no spaces in the parking lot");
+        }
+
+        ParkedVehiclesEntity parkedVehiclesEntity = ParkedVehiclesEntity.builder()
+                                                        .parkingLotEntity(parkingLotEntity)
+                                                        .carPlate(parkedVehicleRequest.getCarPlate().toUpperCase())
+                                                        .audit(new Audit())
+                                                        .build();
+
+        parkedVehiclesEntity = this.parkedVehiclesRepository.save(parkedVehiclesEntity);
+        return new ParkedVehicleResponse(parkedVehiclesEntity);
+    }
+
+    @Override
+    public ParkedVehicleResponse registerDepartureVehicle(ParkedVehicleRequest parkedVehicleRequest) {
+        ParkingLotEntity parkingLotEntity = this.parkingLotService.findParkingLotById(parkedVehicleRequest.getIdParkingLot());
+
+        this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate());
+
+        if(parkingLotEntity.getCapacity() <= this.countParkedVehiclesByParkingLotId(parkingLotEntity.getId())) {
+            throw new BadRequestException("capcity", "There are no spaces in the parking lot");
         }
 
         ParkedVehiclesEntity parkedVehiclesEntity = ParkedVehiclesEntity.builder()
