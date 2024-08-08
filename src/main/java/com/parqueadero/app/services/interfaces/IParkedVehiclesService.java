@@ -8,4 +8,6 @@ public interface IParkedVehiclesService {
     ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest);
     
     public void validIfExisteVehicleByCarPlate(String carPlate);
+
+    Long countParkedVehiclesByParkingLotId(Long idParkingLot);
 }

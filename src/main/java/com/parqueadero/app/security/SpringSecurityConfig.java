@@ -38,8 +38,6 @@ public class SpringSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http.authorizeHttpRequests((authz) -> 
             authz.requestMatchers("/users/**").permitAll()
-                .requestMatchers("/parking-lot/**").permitAll()
-                .requestMatchers("/parked-vehicles/**").permitAll()
             .anyRequest().authenticated())
             .addFilter(new JwtAuthenticationFilter(authenticationManager()))
             .addFilter(new JwtValidationFilter(authenticationManager()))

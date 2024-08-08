@@ -28,6 +28,10 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
 
         this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate());
 
+        if(parkingLotEntity.getCapacity() < this.countParkedVehiclesByParkingLotId(parkingLotEntity.getId())) {
+            //lanzar exception
+        }
+
         ParkedVehiclesEntity parkedVehiclesEntity = ParkedVehiclesEntity.builder()
                                                         .parkingLotEntity(parkingLotEntity)
                                                         .carPlate(parkedVehicleRequest.getCarPlate().toUpperCase())
@@ -40,13 +44,15 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
 
     @Override
     public void validIfExisteVehicleByCarPlate(String carPlate) {
-        this.parkedVehiclesRepository.findByCarPlate(carPlate.toUpperCase()).ifPresent(
+        this.parkedVehiclesRepository.findByCarPlateAndDepartureDateIsNull(carPlate.toUpperCase()).ifPresent(
             v -> {
                 throw new BadRequestException("carPlate", "There is a vehicle registered with that car plate.");
             }
         );
+    }
 
-        
-        
+    @Override
+    public Long countParkedVehiclesByParkingLotId(Long idParkingLot) {
+        return this.parkedVehiclesRepository.countParkedVehiclesByParkingLotId(idParkingLot);
     }
 }

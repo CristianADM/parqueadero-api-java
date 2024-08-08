@@ -111,7 +111,7 @@ public class ParkingLotServiceImpl implements IParkingLotService {
     @Override
     public ParkingLotEntity checkOptionalEmpty(Optional<ParkingLotEntity> parkingLotOptional) {
         if(parkingLotOptional.isEmpty()) {
-            throw new NotFoundException("Id", "There is no user with that id");
+            throw new NotFoundException("Id", "There is no parkingLot with that id");
         }
         return parkingLotOptional.get();
     }
