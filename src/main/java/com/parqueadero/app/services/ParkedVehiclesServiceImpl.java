@@ -1,7 +1,9 @@
 package com.parqueadero.app.services;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
@@ -55,8 +57,12 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
                 .findByCarPlateAndDepartureDateIsNull(parkedVehicleRequest.getCarPlate())
                 .orElseThrow(() -> new NotFoundException("carPlate", "A vehicle with that car plate was not found."));
 
+        if(parkingLotEntity.getId() != parkedVehiclesEntity.getParkingLotEntity().getId()) {
+            throw new NotFoundException("carPlate", "A vehicle with that car plate was not found.");
+        }
+
         parkedVehiclesEntity.setDepartureDate(LocalDateTime.now().withNano(0).withSecond(0));
-        parkedVehiclesEntity.setTimeValue(this.);
+        parkedVehiclesEntity.setTimeValue(this.calculateTimeValue(parkedVehiclesEntity));
 
         parkedVehiclesEntity = this.parkedVehiclesRepository.save(parkedVehiclesEntity);
         return new ParkedVehicleResponse(parkedVehiclesEntity);
@@ -75,5 +81,15 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         return this.parkedVehiclesRepository.countParkedVehiclesByParkingLotId(idParkingLot);
     }
 
-    private Long calculateTimeValue
+    private Long calculateTimeValue(ParkedVehiclesEntity parkedVehiclesEntity) {
+
+        Duration duration = Duration.between(parkedVehiclesEntity.getAudit().getCreateAt(), parkedVehiclesEntity.getDepartureDate());
+
+        Long hours = duration.toHours();
+        Long minutos = duration.toMinutes() % 60;
+
+        Long resultado = (long)((minutos / 60.0) * parkedVehiclesEntity.getParkingLotEntity().getPricePerHour());
+
+        return resultado + (hours * parkedVehiclesEntity.getParkingLotEntity().getPricePerHour());
+    }
 }

@@ -37,9 +37,11 @@ public class ParkedVehiclesController {
     }
 
     //---- PATCH ----\\
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
     @PatchMapping()
     public ResponseEntity<ParkedVehicleResponse> registerVehicleDeparture(@Valid @RequestBody ParkedVehicleRequest parkedVehicleRequest){
-
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.parkedVehiclesService.registerDepartureVehicle(parkedVehicleRequest));
     }
 
     //---- DELETE ----\\

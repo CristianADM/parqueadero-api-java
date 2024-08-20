@@ -13,8 +13,6 @@ public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEn
 
     Optional<ParkedVehiclesEntity> findByCarPlateAndDepartureDateIsNull(String carPlate);
 
-    Optional<ParkedVehiclesEntity> findByCarPlate(String carPlate);
-
     @Query(value = "SELECT COUNT(pv) FROM ParkedVehiclesEntity pv " + 
         "WHERE pv.parkingLotEntity.id = :idParkingLot " +
         "AND pv.departureDate IS NULL ")
