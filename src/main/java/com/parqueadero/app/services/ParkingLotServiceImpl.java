@@ -29,7 +29,16 @@ public class ParkingLotServiceImpl implements IParkingLotService {
 
     @Override
     public List<ParkingLotResponse> findAllParkingLots() {
-        List<ParkingLotEntity> parkingLots = this.parkingLotRepository.findAll();
+
+        UserEntity user = this.userService.getLoggedInUsername();
+
+        List<ParkingLotEntity> parkingLots = new ArrayList<>();
+
+        if (this.userService.isAdmin(user)) {
+            parkingLots = this.parkingLotRepository.findAll();
+        } else {
+            parkingLots = this.parkingLotRepository.findByUserId(user.getId());
+        }
 
         List<ParkingLotResponse> parkingLotResponses = new ArrayList<>();
 

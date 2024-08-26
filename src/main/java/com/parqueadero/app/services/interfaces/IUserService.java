@@ -20,4 +20,8 @@ public interface IUserService {
     UserEntity findUserByEmail(String email);
 
     UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional);
+
+    UserEntity getLoggedInUsername();
+
+    boolean isAdmin(UserEntity user);
 }

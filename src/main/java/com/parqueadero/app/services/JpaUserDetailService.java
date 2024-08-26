@@ -28,7 +28,7 @@ public class JpaUserDetailService implements UserDetailsService {
     @Transactional(readOnly = true)
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<UserEntity> userOptional = this.userRepository.findByEmail(username);
+        Optional<UserEntity> userOptional = this.userRepository.findByEmailAndAuditIsActiveIsTrue(username);
 
         if(userOptional.isEmpty()) {
             throw new UsernameNotFoundException(String.format("The email:  %s does not exist", username));

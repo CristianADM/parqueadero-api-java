@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,7 +61,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     public UserResponse createUser(UserRequest userRequest) {
 
-        Optional<UserEntity> userRegistered = this.userRepository.findByEmail(userRequest.getEmail());
+        Optional<UserEntity> userRegistered = this.userRepository.findByEmailAndAuditIsActiveIsTrue(userRequest.getEmail());
 
         if(userRegistered.isPresent()) {
             throw new BadRequestException("email", "the email is already registered");
@@ -92,7 +96,7 @@ public class UserServiceImpl implements IUserService {
         UserEntity userEntity = this.findUserById(idUser);
 
         //Validar que no exista otro usuario por el correo que viene de la peticion
-        Optional<UserEntity> userRegistered = this.userRepository.findByEmail(userRequest.getEmail());
+        Optional<UserEntity> userRegistered = this.userRepository.findByEmailAndAuditIsActiveIsTrue(userRequest.getEmail());
 
         if(userRegistered.isPresent()) {
             throw new BadRequestException("email", "the email is already registered");
@@ -125,7 +129,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional(readOnly = true)
     @Override
     public UserEntity findUserByEmail(String email) {
-        return this.checkOptionalEmpty(this.userRepository.findByEmail(email));
+        return this.checkOptionalEmpty(this.userRepository.findByEmailAndAuditIsActiveIsTrue(email));
     }
 
     @Override
@@ -134,5 +138,39 @@ public class UserServiceImpl implements IUserService {
             throw new BadRequestException("Id", "There is no user with that id");
         }
         return userOptional.get();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public UserEntity getLoggedInUsername() {
+        // Obtener el objeto Authentication
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        String email = "";
+        
+        // Verificar que la autenticación no sea nula y esté autenticada
+        if (authentication != null && authentication.isAuthenticated()) {
+
+            // Obtener el principal del objeto Authentication
+            Object principal = authentication.getPrincipal();
+            
+            // Verificar si el principal es una instancia de UserDetails
+            if (principal instanceof UserDetails) {
+                // Retornar el nombre de usuario
+                email = ((UserDetails) principal).getUsername();
+            } else {
+                // Si el principal no es un UserDetails, puede ser un String (por ejemplo, el nombre de usuario)
+                email = principal.toString();
+            }
+
+            return this.findUserByEmail(email);
+        }
+        return null; // Si no está autenticado o no se pudo obtener el nombre de usuario
+    }
+    
+    @Override
+    public boolean isAdmin(UserEntity user) {
+        return user.getRoles().stream()
+            .anyMatch(r -> r.getName().equals("ROLE_ADMIN"));
     }
 }

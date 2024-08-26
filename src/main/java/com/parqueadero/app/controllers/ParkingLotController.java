@@ -32,6 +32,7 @@ public class ParkingLotController {
     private final IParkingLotService parkingLotService;
 
     //---- GET ----\\
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping(value = "", produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<List<ParkingLotResponse>> findAllParkingLots() {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkingLotService.findAllParkingLots());
