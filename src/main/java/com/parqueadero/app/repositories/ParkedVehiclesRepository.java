@@ -7,10 +7,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.parqueadero.app.models.ParkedVehiclesEntity;
+import java.util.List;
+
 
 @Repository
 public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEntity, Long> {
 
+    List<ParkedVehiclesEntity> findByParkingLotEntityId(Long parkingLotId);
+
+    boolean existsByCarPlateAndDepartureDateIsNull(String carPlate);
+    
     Optional<ParkedVehiclesEntity> findByCarPlateAndDepartureDateIsNull(String carPlate);
 
     @Query(value = "SELECT COUNT(pv) FROM ParkedVehiclesEntity pv " + 

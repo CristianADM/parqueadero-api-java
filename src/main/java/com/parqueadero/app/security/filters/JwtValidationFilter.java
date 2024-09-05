@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.Collection;
 
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.parqueadero.app.models.UserEntity;
 import com.parqueadero.app.security.SimpleGrantedAuthorityJsonCreator;
+import com.parqueadero.app.services.interfaces.IUserService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -32,8 +35,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class JwtValidationFilter extends BasicAuthenticationFilter {
 
-    public JwtValidationFilter(AuthenticationManager authenticationManager) {
+    private final IUserService userService;
+
+    public JwtValidationFilter(AuthenticationManager authenticationManager, IUserService userService) {
         super(authenticationManager);
+        this.userService = userService;
     }
 
     @Override
@@ -52,6 +58,9 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
         try {
             Claims claims = Jwts.parser().verifyWith(SECRET_KEY).build().parseSignedClaims(token).getPayload();
             String username = claims.getSubject();
+            UserEntity loggedUser = this.userService.findUserByEmail(username);
+
+            loggedUser.setAdmin(this.userService.isAdmin(loggedUser));
 
             Object authoritiesClaims = claims.get("authorities");
 
@@ -62,8 +71,9 @@ public class JwtValidationFilter extends BasicAuthenticationFilter {
                 .readValue(authoritiesClaims.toString().getBytes(), SimpleGrantedAuthority[].class)
             );
 
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,  null, authorities);
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loggedUser,  null, authorities);
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
             chain.doFilter(request, response);
         } catch (JwtException e) {
             Map<String, String> body = new HashMap<>();

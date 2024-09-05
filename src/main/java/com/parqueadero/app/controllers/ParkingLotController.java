@@ -8,7 +8,6 @@ import com.parqueadero.app.dtos.responses.ParkingLotResponse;
 import com.parqueadero.app.services.interfaces.IParkingLotService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,13 +22,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@RequiredArgsConstructor
-
 @RequestMapping("/parking-lot")
 @RestController
 public class ParkingLotController {
 
     private final IParkingLotService parkingLotService;
+
+    public ParkingLotController(IParkingLotService parkingLotService) {
+        this.parkingLotService = parkingLotService;
+    }
 
     //---- GET ----\\
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
@@ -52,6 +53,7 @@ public class ParkingLotController {
 
 
     //---- PUT ----\\
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @PutMapping("/{idParkingLot}")
     public ResponseEntity<ParkingLotResponse> updateParkingLot(@PathVariable Long idParkingLot, 
                                                                 @Valid @RequestBody ParkingLotRequest parkingLotRequest) {
@@ -59,6 +61,7 @@ public class ParkingLotController {
     }
 
     //---- DELETE ----\\
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN')")
     @DeleteMapping("/{idParkingLot}")
     public ResponseEntity<ParkingLotResponse> deleteParkingLot(@PathVariable Long idParkingLot) {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkingLotService.deleteParkingLot(idParkingLot));

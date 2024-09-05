@@ -14,9 +14,16 @@ import com.parqueadero.app.dtos.responses.ErrorDetailResponse;
 import com.parqueadero.app.dtos.responses.ErrorResponse;
 import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.exceptions.NotFoundException;
+import com.parqueadero.app.exceptions.UnauthorizedException;
 
 @RestControllerAdvice
 public class HandlerExceptionController {
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e) {
+        return new ResponseEntity<>(e.getErrorResponse(), HttpStatus.UNAUTHORIZED);
+    }
 
     @ExceptionHandler(BadRequestException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)

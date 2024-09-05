@@ -13,11 +13,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = false)
-public class BadRequestException extends RuntimeException {
+public class UnauthorizedException extends RuntimeException{
+private final transient ErrorResponse errorResponse;
 
-    private final transient ErrorResponse errorResponse;
-
-    public BadRequestException(String error, String message) {
+    public UnauthorizedException(String error, String message) {
         List<ErrorDetailResponse> errorDetail = new ArrayList<>();
         errorDetail.add(new ErrorDetailResponse(error, message));
         this.errorResponse = new ErrorResponse(errorDetail);

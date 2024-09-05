@@ -8,7 +8,8 @@ import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.services.interfaces.IParkedVehiclesService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,16 +20,22 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-@RequiredArgsConstructor
-
 @RequestMapping("/parked-vehicles")
 @RestController
 public class ParkedVehiclesController {
 
     private final IParkedVehiclesService parkedVehiclesService;
 
+    public ParkedVehiclesController(IParkedVehiclesService parkedVehiclesService) {
+        this.parkedVehiclesService = parkedVehiclesService;
+    }
+
     //---- GET ----\\
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/{parkingLotId}")
+    public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesByParkingLot(@PathVariable Long parkingLotId) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesByParkingLot(parkingLotId));
+    }
 
     //---- POST ----\\
     @PreAuthorize("hasAnyRole('ROLE_USER')")

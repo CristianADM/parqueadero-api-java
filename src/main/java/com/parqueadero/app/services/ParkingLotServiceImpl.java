@@ -3,14 +3,19 @@ package com.parqueadero.app.services;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.ParkingLotRequest;
+import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.dtos.responses.ParkingLotResponse;
 import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.exceptions.NotFoundException;
+import com.parqueadero.app.exceptions.UnauthorizedException;
 import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.ParkingLotEntity;
 import com.parqueadero.app.models.UserEntity;
@@ -27,26 +32,22 @@ public class ParkingLotServiceImpl implements IParkingLotService {
     private final ParkingLotRepository parkingLotRepository;
     private final IUserService userService;
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParkingLotResponse> findAllParkingLots() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
 
-        UserEntity user = this.userService.getLoggedInUsername();
-
-        List<ParkingLotEntity> parkingLots = new ArrayList<>();
-
-        if (this.userService.isAdmin(user)) {
-            parkingLots = this.parkingLotRepository.findAll();
+        if (loggedUser.isAdmin()) {
+            return this.parkingLotRepository.findAll()
+                    .stream()
+                    .map(ParkingLotResponse::new)
+                    .collect(Collectors.toList());
         } else {
-            parkingLots = this.parkingLotRepository.findByUserId(user.getId());
+            return this.parkingLotRepository.findByUserId(loggedUser.getId()).stream()
+                    .map(ParkingLotResponse::new)
+                    .collect(Collectors.toList());
         }
-
-        List<ParkingLotResponse> parkingLotResponses = new ArrayList<>();
-
-        parkingLots.forEach(parking -> {
-            parkingLotResponses.add(new ParkingLotResponse(parking));
-        });
-        
-        return parkingLotResponses;
     }
     
     @Transactional

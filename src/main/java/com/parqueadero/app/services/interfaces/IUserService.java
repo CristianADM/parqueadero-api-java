@@ -21,7 +21,7 @@ public interface IUserService {
 
     UserEntity checkOptionalEmpty(Optional<UserEntity> userOptional);
 
-    UserEntity getLoggedInUsername();
+    //UserEntity getLoggedInUsername();
 
     boolean isAdmin(UserEntity user);
 }

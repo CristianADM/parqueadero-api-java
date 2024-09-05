@@ -140,33 +140,33 @@ public class UserServiceImpl implements IUserService {
         return userOptional.get();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public UserEntity getLoggedInUsername() {
-        // Obtener el objeto Authentication
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    // @Transactional(readOnly = true)
+    // @Override
+    // public UserEntity getLoggedInUsername() {
+    //     // Obtener el objeto Authentication
+    //     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String email = "";
+    //     String email = "";
         
-        // Verificar que la autenticación no sea nula y esté autenticada
-        if (authentication != null && authentication.isAuthenticated()) {
+    //     // Verificar que la autenticación no sea nula y esté autenticada
+    //     if (authentication != null && authentication.isAuthenticated()) {
 
-            // Obtener el principal del objeto Authentication
-            Object principal = authentication.getPrincipal();
+    //         // Obtener el principal del objeto Authentication
+    //         Object principal = authentication.getPrincipal();
             
-            // Verificar si el principal es una instancia de UserDetails
-            if (principal instanceof UserDetails) {
-                // Retornar el nombre de usuario
-                email = ((UserDetails) principal).getUsername();
-            } else {
-                // Si el principal no es un UserDetails, puede ser un String (por ejemplo, el nombre de usuario)
-                email = principal.toString();
-            }
+    //         // Verificar si el principal es una instancia de UserDetails
+    //         if (principal instanceof UserDetails) {
+    //             // Retornar el nombre de usuario
+    //             email = ((UserDetails) principal).getUsername();
+    //         } else {
+    //             // Si el principal no es un UserDetails, puede ser un String (por ejemplo, el nombre de usuario)
+    //             email = principal.toString();
+    //         }
 
-            return this.findUserByEmail(email);
-        }
-        return null; // Si no está autenticado o no se pudo obtener el nombre de usuario
-    }
+    //         return this.findUserByEmail(email);
+    //     }
+    //     return null; // Si no está autenticado o no se pudo obtener el nombre de usuario
+    // }
     
     @Override
     public boolean isAdmin(UserEntity user) {

@@ -14,20 +14,21 @@ import com.parqueadero.app.dtos.responses.UserResponse;
 import com.parqueadero.app.services.interfaces.IUserService;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
-@RequiredArgsConstructor
-
 @RequestMapping("/users")
 @RestController
 public class UserController {
 
     private final IUserService userService;
+
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
 
     //---- GET ----\\
     @PreAuthorize("hasAnyRole('ROLE_ADMIN')")

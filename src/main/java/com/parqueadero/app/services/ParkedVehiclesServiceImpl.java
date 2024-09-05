@@ -2,30 +2,56 @@ package com.parqueadero.app.services;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import org.springframework.cglib.core.Local;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.exceptions.NotFoundException;
+import com.parqueadero.app.exceptions.UnauthorizedException;
 import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.ParkedVehiclesEntity;
 import com.parqueadero.app.models.ParkingLotEntity;
+import com.parqueadero.app.models.UserEntity;
 import com.parqueadero.app.repositories.ParkedVehiclesRepository;
 import com.parqueadero.app.services.interfaces.IParkedVehiclesService;
 import com.parqueadero.app.services.interfaces.IParkingLotService;
-
-import lombok.RequiredArgsConstructor;
-
-@RequiredArgsConstructor
 
 @Service
 public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
 
     private final ParkedVehiclesRepository parkedVehiclesRepository;
     private final IParkingLotService parkingLotService;
+
+    public ParkedVehiclesServiceImpl(ParkedVehiclesRepository parkedVehiclesRepository,
+            IParkingLotService parkingLotService) {
+        this.parkedVehiclesRepository = parkedVehiclesRepository;
+        this.parkingLotService = parkingLotService;
+    }
+
+    @Override
+    public List<ParkedVehicleResponse> findParkedVehiclesByParkingLot(Long parkingLotId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
+
+        ParkingLotEntity parkingLotEntity = this.parkingLotService.findParkingLotById(parkingLotId);
+        
+        if ((!parkingLotEntity.getUser().getId().equals(loggedUser.getId())) && (!loggedUser.isAdmin())) {
+            throw new UnauthorizedException("User", "The parkinLot is not associated with the user");
+        } 
+        
+        return this.parkedVehiclesRepository.findByParkingLotEntityId(parkingLotId)
+        .stream()
+        .map(ParkedVehicleResponse::new)  // Transforma cada `vehicle` en `ParkedVehicleResponse`
+        .collect(Collectors.toList());
+    }
 
     @Override
     public ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest) {
@@ -70,10 +96,9 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
 
     @Override
     public void validIfExisteVehicleByCarPlate(String carPlate) {
-        this.parkedVehiclesRepository.findByCarPlateAndDepartureDateIsNull(carPlate.toUpperCase()).ifPresent(
-                v -> {
-                    throw new BadRequestException("carPlate", "There is a vehicle registered with that car plate.");
-                });
+        if(this.parkedVehiclesRepository.existsByCarPlateAndDepartureDateIsNull(carPlate)) {
+            throw new BadRequestException("carPlate", "There is a vehicle registered with that car plate.");
+        }
     }
 
     @Override

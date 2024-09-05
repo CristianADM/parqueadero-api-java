@@ -1,9 +1,13 @@
 package com.parqueadero.app.services.interfaces;
 
+import java.util.List;
+
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 
 public interface IParkedVehiclesService {
+
+    List<ParkedVehicleResponse> findParkedVehiclesByParkingLot(Long parkingLotId);
 
     ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest);
 
