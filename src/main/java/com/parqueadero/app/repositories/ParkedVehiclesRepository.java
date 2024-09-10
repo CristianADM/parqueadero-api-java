@@ -13,6 +13,13 @@ import java.util.List;
 @Repository
 public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEntity, Long> {
 
+    @Query(value = "SELECT pv FROM ParkedVehiclesEntity pv " +
+        "JOIN pv.parkingLotEntity pl " +
+        "WHERE " + 
+        "(pv.carPlate LIKE %:carPlate%) " + 
+        "AND (:idUser IS NULL OR pl.user.id = :idUser)")
+    List<ParkedVehiclesEntity> findByCarPlateAndUserId(String carPlate, Long idUser);
+
     List<ParkedVehiclesEntity> findByParkingLotEntityId(Long parkingLotId);
 
     boolean existsByCarPlateAndDepartureDateIsNull(String carPlate);

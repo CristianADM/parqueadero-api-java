@@ -32,6 +32,12 @@ public class ParkedVehiclesController {
 
     //---- GET ----\\
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/search/{carPlate}")
+    public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesByCarPlate(@PathVariable String carPlate) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesByCarPlate(carPlate));
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/{parkingLotId}")
     public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesByParkingLot(@PathVariable Long parkingLotId) {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesByParkingLot(parkingLotId));

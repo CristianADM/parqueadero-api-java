@@ -2,14 +2,13 @@ package com.parqueadero.app.services;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
@@ -37,6 +36,25 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
     }
 
     @Override
+    public List<ParkedVehicleResponse> findParkedVehiclesByCarPlate(String carPlate) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
+        
+        if (loggedUser.isAdmin()) {
+            return this.parkedVehiclesRepository.findByCarPlateAndUserId(carPlate.toUpperCase(), null)
+            .stream()
+            .map(ParkedVehicleResponse::new)
+            .collect(Collectors.toList());
+        } else {
+            return this.parkedVehiclesRepository.findByCarPlateAndUserId(carPlate.toUpperCase(), loggedUser.getId())
+            .stream()
+            .map(ParkedVehicleResponse::new)
+            .collect(Collectors.toList());
+        }
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public List<ParkedVehicleResponse> findParkedVehiclesByParkingLot(Long parkingLotId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
@@ -53,6 +71,7 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         .collect(Collectors.toList());
     }
 
+    @Transactional
     @Override
     public ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest) {
         ParkingLotEntity parkingLotEntity = this.parkingLotService
@@ -74,6 +93,7 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         return new ParkedVehicleResponse(parkedVehiclesEntity);
     }
 
+    @Transactional
     @Override
     public ParkedVehicleResponse registerDepartureVehicle(ParkedVehicleRequest parkedVehicleRequest) {
         ParkingLotEntity parkingLotEntity = this.parkingLotService
@@ -101,6 +121,7 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Long countParkedVehiclesByParkingLotId(Long idParkingLot) {
         return this.parkedVehiclesRepository.countParkedVehiclesByParkingLotId(idParkingLot);

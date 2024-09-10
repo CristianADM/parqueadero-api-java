@@ -7,6 +7,8 @@ import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 
 public interface IParkedVehiclesService {
 
+    List<ParkedVehicleResponse> findParkedVehiclesByCarPlate(String carPlate);
+
     List<ParkedVehicleResponse> findParkedVehiclesByParkingLot(Long parkingLotId);
 
     ParkedVehicleResponse registerVehicle(ParkedVehicleRequest parkedVehicleRequest);
