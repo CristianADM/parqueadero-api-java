@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
+import com.parqueadero.app.dtos.responses.ParkedVehicleCountResponse;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.services.interfaces.IParkedVehiclesService;
 
@@ -31,12 +32,21 @@ public class ParkedVehiclesController {
     }
 
     //---- GET ----\\
+    //Consultar los 10 vehiculos con mas registros
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/most-registration")
+    public ResponseEntity<List<ParkedVehicleCountResponse>> findParkedVehiclesWithTheMostRegistration() {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesWithTheMostRegistration());
+    }
+
+    //Consultar vehiculos por placa
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/search/{carPlate}")
     public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesByCarPlate(@PathVariable String carPlate) {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesByCarPlate(carPlate));
     }
 
+    //Consultar vehiculos por parqueadero
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/{parkingLotId}")
     public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesByParkingLot(@PathVariable Long parkingLotId) {

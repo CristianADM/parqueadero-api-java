@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
+import com.parqueadero.app.dtos.responses.ParkedVehicleCountResponse;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.exceptions.NotFoundException;
@@ -33,6 +34,12 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
             IParkingLotService parkingLotService) {
         this.parkedVehiclesRepository = parkedVehiclesRepository;
         this.parkingLotService = parkingLotService;
+    }
+
+    @Override
+    public List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistration() {
+
+        return this.parkedVehiclesRepository.findParkedVehiclesWithTheMostRegistration();
     }
 
     @Override
