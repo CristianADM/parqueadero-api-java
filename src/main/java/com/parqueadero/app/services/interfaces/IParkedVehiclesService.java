@@ -9,6 +9,10 @@ import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 public interface IParkedVehiclesService {
 
     List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistration();
+    
+    List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistrationByParkingLot(Long parkingLotId);
+    
+    List<ParkedVehicleResponse> findParkedVehiclesFirstTimeByParkingLot(Long parkingLotId);
 
     List<ParkedVehicleResponse> findParkedVehiclesByCarPlate(String carPlate);
 

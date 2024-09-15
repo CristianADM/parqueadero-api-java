@@ -39,6 +39,20 @@ public class ParkedVehiclesController {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesWithTheMostRegistration());
     }
 
+    //Consultar los 10 vehiculos con mas registros por parqueadero
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/most-registration-by-parking-lot/{parkingLotId}")
+    public ResponseEntity<List<ParkedVehicleCountResponse>> findParkedVehiclesWithTheMostRegistrationByParkingLot(@PathVariable Long parkingLotId) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesWithTheMostRegistrationByParkingLot(parkingLotId));
+    }
+    
+    //Consultar los vehiculos que son primera vez en el parqueadero
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/first-time/{parkingLotId}")
+    public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesFirstTimeByParkingLot(@PathVariable Long parkingLotId) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesFirstTimeByParkingLot(parkingLotId));
+    }
+
     //Consultar vehiculos por placa
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/search/{carPlate}")

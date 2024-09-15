@@ -36,12 +36,27 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         this.parkingLotService = parkingLotService;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistration() {
-
-        return this.parkedVehiclesRepository.findParkedVehiclesWithTheMostRegistration();
+        return this.parkedVehiclesRepository.findParkedVehiclesWithTheMostRegistration(null);
+    }
+    
+    @Transactional(readOnly = true)
+    @Override
+    public List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistrationByParkingLot(Long parkingLotId) {
+        return this.parkedVehiclesRepository.findParkedVehiclesWithTheMostRegistration(parkingLotId);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<ParkedVehicleResponse> findParkedVehiclesFirstTimeByParkingLot(Long parkingLotId) {
+        return this.parkedVehiclesRepository.findFirstTimeByParkingLotId(parkingLotId).stream()
+        .map(ParkedVehicleResponse::new)
+        .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public List<ParkedVehicleResponse> findParkedVehiclesByCarPlate(String carPlate) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

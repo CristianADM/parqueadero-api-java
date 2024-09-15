@@ -20,15 +20,16 @@ public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEn
 
     @Query("SELECT pv.carPlate, COUNT(pv) as count " +
        "FROM ParkedVehiclesEntity pv " +
+       "WHERE (:parkingLotId IS NULL OR pv.parkingLotEntity.id = :parkingLotId) " +
        "GROUP BY pv.carPlate " +
        "ORDER BY count DESC")
-    List<Object[]> findTop10VehiculosConMasRegistros(Pageable pageable);
+    List<Object[]> findTop10VehiculosConMasRegistros(Long parkingLotId, Pageable pageable);
 
-    default List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistration() {
+    default List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistration(Long parkingLotId) {
         List<ParkedVehicleCountResponse> response = new ArrayList<>();
 
         Pageable pageable = PageRequest.of(0, 10);
-        List<Object[]> resultados = this.findTop10VehiculosConMasRegistros(pageable);
+        List<Object[]> resultados = this.findTop10VehiculosConMasRegistros(parkingLotId, pageable);
 
         resultados.forEach(result -> {
             response.add(new ParkedVehicleCountResponse((String) result[0], (Long) result[1]));
@@ -36,6 +37,13 @@ public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEn
 
         return response;
     }
+
+    @Query(value = "SELECT pv " +
+        "FROM ParkedVehiclesEntity pv " +
+        "WHERE (:parkingLotId IS NULL OR pv.parkingLotEntity.id = :parkingLotId) " +
+        "GROUP BY pv.id " +
+       "HAVING COUNT(pv.id) = 1 ")
+    List<ParkedVehiclesEntity> findFirstTimeByParkingLotId(Long parkingLotId);
 
     @Query(value = "SELECT pv FROM ParkedVehiclesEntity pv " +
         "JOIN pv.parkingLotEntity pl " +
