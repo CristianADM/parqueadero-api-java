@@ -40,9 +40,12 @@ public interface ParkedVehiclesRepository extends JpaRepository<ParkedVehiclesEn
 
     @Query(value = "SELECT pv " +
         "FROM ParkedVehiclesEntity pv " +
-        "WHERE (:parkingLotId IS NULL OR pv.parkingLotEntity.id = :parkingLotId) " +
-        "GROUP BY pv.id " +
-       "HAVING COUNT(pv.id) = 1 ")
+        "WHERE " +
+        "pv.carPlate in (SELECT pv2.carPlate " +
+        "FROM ParkedVehiclesEntity pv2 " +
+        "GROUP BY pv2.carPlate " +
+        "HAVING COUNT(pv2.carPlate) = 1) " +
+        "AND (:parkingLotId IS NULL OR pv.parkingLotEntity.id = :parkingLotId) ")
     List<ParkedVehiclesEntity> findFirstTimeByParkingLotId(Long parkingLotId);
 
     @Query(value = "SELECT pv FROM ParkedVehiclesEntity pv " +
