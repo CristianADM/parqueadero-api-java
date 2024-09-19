@@ -1,6 +1,7 @@
 package com.parqueadero.app.controllers;
 
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
@@ -50,6 +51,13 @@ public class ParkedVehiclesController {
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/first-time/{parkingLotId}")
     public ResponseEntity<List<ParkedVehicleResponse>> findParkedVehiclesFirstTimeByParkingLot(@PathVariable Long parkingLotId) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesFirstTimeByParkingLot(parkingLotId));
+    }
+    
+    //Consultar las ganancias de un parqueadero por dia, semana, mes y año
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
+    @GetMapping("/earnings")
+    public ResponseEntity<?> earningByTime(@RequestParam() String time) {
         return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesFirstTimeByParkingLot(parkingLotId));
     }
 
