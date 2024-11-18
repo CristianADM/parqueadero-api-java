@@ -56,9 +56,10 @@ public class ParkedVehiclesController {
     
     //Consultar las ganancias de un parqueadero por dia, semana, mes y año
     @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
-    @GetMapping("/earnings")
-    public ResponseEntity<?> earningByTime(@RequestParam() String time) {
-        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.findParkedVehiclesFirstTimeByParkingLot(parkingLotId));
+    @GetMapping("/earnings/{parkingLotId}")
+    public ResponseEntity<Long> earningByTime(@PathVariable Long parkingLotId,
+                                        @RequestParam(name = "time", required = true) String time) {
+        return ResponseEntity.status(HttpStatus.OK).body(this.parkedVehiclesService.earningsByTimeAndParkingId(parkingLotId, time));
     }
 
     //Consultar vehiculos por placa

@@ -13,6 +13,8 @@ public interface IParkedVehiclesService {
     List<ParkedVehicleCountResponse> findParkedVehiclesWithTheMostRegistrationByParkingLot(Long parkingLotId);
     
     List<ParkedVehicleResponse> findParkedVehiclesFirstTimeByParkingLot(Long parkingLotId);
+    
+    Long earningsByTimeAndParkingId(Long parkingLotId, String time);
 
     List<ParkedVehicleResponse> findParkedVehiclesByCarPlate(String carPlate);
 

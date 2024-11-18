@@ -1,6 +1,7 @@
 package com.parqueadero.app.services;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.parqueadero.app.dtos.projections.ParkingLotEarningsProjection;
 import com.parqueadero.app.dtos.requests.ParkedVehicleRequest;
 import com.parqueadero.app.dtos.responses.ParkedVehicleCountResponse;
 import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
@@ -51,9 +53,53 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
     @Transactional(readOnly = true)
     @Override
     public List<ParkedVehicleResponse> findParkedVehiclesFirstTimeByParkingLot(Long parkingLotId) {
+        ParkingLotEntity parkingLot = this.parkingLotService.findParkingLotById(parkingLotId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
+        
+        if ((!parkingLot.getUser().getId().equals(loggedUser.getId())) && (!loggedUser.isAdmin())) {
+            throw new UnauthorizedException("User", "The parkinLot is not associated with the user");
+        }
+        
         return this.parkedVehiclesRepository.findFirstTimeByParkingLotId(parkingLotId).stream()
         .map(ParkedVehicleResponse::new)
         .collect(Collectors.toList());
+    }
+
+    @Override
+    public Long earningsByTimeAndParkingId(Long parkingLotId, String time) {
+        ParkingLotEntity parkingLot = this.parkingLotService.findParkingLotById(parkingLotId);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserEntity loggedUser = (UserEntity) authentication.getPrincipal();
+        
+        if ((!parkingLot.getUser().getId().equals(loggedUser.getId())) && (!loggedUser.isAdmin())) {
+            throw new UnauthorizedException("User", "The parkinLot is not associated with the user");
+        }
+
+        LocalDate fromDate = LocalDate.now();
+        LocalDate untiDate = LocalDate.now();
+
+        ParkingLotEarningsProjection projections;
+
+        if (time.equals("today")) {
+
+            projections = this.parkedVehiclesRepository.getEarningsByParkingLotIdAndDates(parkingLot.getId(), fromDate, untiDate);
+        } else if (time.equals("week")) {
+
+            projections = this.parkedVehiclesRepository.getEarningsByParkingLotIdAndDates(parkingLot.getId(), fromDate.minusDays(7), untiDate);
+        } else if (time.equals("month")) {
+
+            projections = this.parkedVehiclesRepository.getEarningsByParkingLotIdAndDates(parkingLot.getId(), fromDate.minusMonths(1), untiDate);
+        } else if (time.equals("year")) {
+
+            projections = this.parkedVehiclesRepository.getEarningsByParkingLotIdAndDates(parkingLot.getId(), fromDate.minusYears(1), untiDate);
+        } else {
+            throw new BadRequestException("time", "The time is not valid, (today, week, month, year)");
+        }
+
+        return projections.getEarnings() == null ? 0 : projections.getEarnings();
     }
 
     @Transactional(readOnly = true)
@@ -99,7 +145,7 @@ public class ParkedVehiclesServiceImpl implements IParkedVehiclesService {
         ParkingLotEntity parkingLotEntity = this.parkingLotService
                 .findParkingLotById(parkedVehicleRequest.getIdParkingLot());
 
-        this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate());
+        this.validIfExisteVehicleByCarPlate(parkedVehicleRequest.getCarPlate()); 
 
         if (parkingLotEntity.getCapacity() <= this.countParkedVehiclesByParkingLotId(parkingLotEntity.getId())) {
             throw new BadRequestException("capcity", "There are no spaces in the parking lot");

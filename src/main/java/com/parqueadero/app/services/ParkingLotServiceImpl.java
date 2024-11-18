@@ -11,11 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.parqueadero.app.dtos.requests.ParkingLotRequest;
-import com.parqueadero.app.dtos.responses.ParkedVehicleResponse;
 import com.parqueadero.app.dtos.responses.ParkingLotResponse;
 import com.parqueadero.app.exceptions.BadRequestException;
 import com.parqueadero.app.exceptions.NotFoundException;
-import com.parqueadero.app.exceptions.UnauthorizedException;
 import com.parqueadero.app.models.Audit;
 import com.parqueadero.app.models.ParkingLotEntity;
 import com.parqueadero.app.models.UserEntity;
